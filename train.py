@@ -25,19 +25,19 @@ class Net(nn.Module):
 
         self.a1 = nn.Conv2d(5, 16, kernel_size=3, padding=1)
         self.a2 = nn.Conv2d(16, 16, kernel_size=3, padding=1)
-        self.a3 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
+        self.a3 = nn.Conv2d(16, 32, kernel_size=3, padding=2)
 
         self.b1 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
         self.b2 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
-        self.b3 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.b3 = nn.Conv2d(32, 64, kernel_size=3, padding=2)
 
         self.c1 = nn.Conv2d(64, 64, kernel_size=2, padding=1)
         self.c2 = nn.Conv2d(64, 64, kernel_size=2, padding=1)
-        self.c3 = nn.Conv2d(64, 128, kernel_size=2, padding=1)
+        self.c3 = nn.Conv2d(64, 128, kernel_size=2, padding=2)
 
-        self.d1 = nn.Conv2d(128, 128, kernel_size=1, padding=1)
-        self.d2 = nn.Conv2d(128, 128, kernel_size=1, padding=1)
-        self.d3 = nn.Conv2d(128, 128, kernel_size=1, padding=1)
+        self.d1 = nn.Conv2d(128, 128, kernel_size=1)
+        self.d2 = nn.Conv2d(128, 128, kernel_size=1)
+        self.d3 = nn.Conv2d(128, 128, kernel_size=1)
 
         self.last = nn.Linear(128, 1)
 
@@ -68,26 +68,42 @@ class Net(nn.Module):
         x = self.last(x)
 
         # Value output
-        return F.sigmoid(x)
+        return F.tanh(x)
 
-chess_dataset = ChessValueDataset()
-train_loader = torch.utils.data.DataLoader(chess_dataset)
-model = Net()
-optimizer = optim.Adam(model.parameters())
-loss = nn.MSELoss()
+if __name__ == "__main__":
+  device = "cuda"
 
-device = "cpu"
+  chess_dataset = ChessValueDataset()
+  train_loader = torch.utils.data.DataLoader(chess_dataset, batch_size=128, shuffle=True)
+  model = Net()
+  optimizer = optim.Adam(model.parameters())
+  floss = nn.MSELoss()
 
-model.train()
-for batch_idx, (data, target) in enumerate(train_loader):
-    target = target.unsqueeze(-1)
-    data, target = data.to(device), target.to(device)
-    data = data.float()
-    target = target.float()
+  if device == "cuda":
+    model.cuda()
 
-    optimizer.zero_grad()
-    output = model(data)
+  model.train()
 
-    loss_t = loss(output, target)
-    loss_t.backward()
-    optimizer.step()
+  for epoch in range(100):
+    all_loss = 0
+    num_loss = 0
+    for batch_idx, (data, target) in enumerate(train_loader):
+      target = target.unsqueeze(-1)
+      data, target = data.to(device), target.to(device)
+      data = data.float()
+      target = target.float()
+
+      #print(data.shape, target.shape)
+      optimizer.zero_grad()
+      output = model(data)
+      #print(output.shape)
+
+      loss = floss(output, target)
+      loss.backward()
+      optimizer.step()
+      
+      all_loss += loss.item()
+      num_loss += 1
+
+    print("%3d: %f" % (epoch, all_loss/num_loss))
+    torch.save(model.state_dict(), "nets/value.pth")
