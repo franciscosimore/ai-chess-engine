@@ -1,23 +1,28 @@
-# An AI Chess Engine from scratch
+# An AI Chess Engine
 
 We can think of chess decisions as a big search tree.
 Then use a neural network to prune the search tree.
 
-Pieces (1+6*2 = 13):
-* Blank.
-* Pawn.
-* Bishop.
-* Knight.
-* Rook.
-* Queen.
-* King.
-
 Definition: value network.
 V = f(state)
+-> -1: black wins board state
+-> 0: draw board state
+-> 1: white wins board state
 
-state(board):
-
+**state(board):**
+Pieces (2+7*2 = 16):
+* Universal
+** Blank
+** Blank (en passant)
+* Pieces
+** Pawn
+** Bishop
+** Knight
+** Rook
+** Rook (can castle)
+** Queen
+** King
 Extra states:
-* Castle available x2
-* En passant available x2
-8x8x4+4 = 260 bits (vector of 0 or 1)
+* To move
+
+8x8x5 = 320 bits (vector of 0 or 1)
