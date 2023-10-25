@@ -7,7 +7,7 @@ from torch import optim
 
 class ChessValueDataset(Dataset):
   def __init__(self):
-    dat = np.load("data/processed/caissabase_100k.npz")
+    dat = np.load("data/processed/caissabase_1m.npz")
     self.X = dat['arr_0']
     self.Y = dat['arr_1']
     print("loaded", self.X.shape, self.Y.shape)
@@ -101,4 +101,4 @@ if __name__ == "__main__":
       num_loss += 1
 
     print("%3d: %f" % (epoch, all_loss/num_loss))
-    torch.save(model.state_dict(), "nets/value_100k.pth")
+    torch.save(model.state_dict(), "nets/value_1m.pth")
