@@ -1,10 +1,12 @@
 import chess
 import chess.svg
-from flask import Flask, Response
+import traceback
+from flask import Flask, Response, request
 import torch
 from state import State
 from train import Net
 import time
+import base64
 
 class Valuator(object):
     def __init__(self):
@@ -37,6 +39,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
+    board_svg = base64.b64encode(chess.svg.board(board=s.board).encode("utf-8")).decode("utf-8")
     return """
 <html>
   <head>
@@ -45,23 +48,42 @@ def hello():
       button {
         font-size: 20px;
       }
+      input {
+        font-size: 20px;
+      }
     </style>
   </head>
   <body>
-    <img width="600" height="600" src="board.svg?%f"/><br>
+    <img width="600" height="600" src="data:image/svg+xml;base64,%s"</img><br/>
+    <form action='/human'><input name='move' type='text'></input><input type='submit' value='Human Move'></form></br>
     <button onclick="console.log('Button Clicked'); $.post('/move', function(data) { console.log('Response:', data); location.reload(); });">Make Computer Move</button>
   </body>
 </html>
-""" % time.time()
+""" % board_svg
 
-@app.route("/board.svg")
-def board():
-    return Response(chess.svg.board(board=s.board), mimetype="image/svg+xml")
+# @app.route("/board.svg")
+# def board():
+#     return Response(chess.svg.board(board=s.board), mimetype="image/svg+xml")
 
-@app.route("/move", methods=["POST"])
+# @app.route("/move", methods=["POST"])
+# def move():
+#     computer_move()
+#     return("")
+
+@app.route("/human", methods=["GET"])
 def move():
-    computer_move()
-    return("")
+    if not s.board.is_game_over():
+        move = request.args.get("move", default="")
+        if move is not None and move != "":
+            print("Human moves", move)
+            try:
+                s.board.push_san(move)
+            except Exception:
+                traceback.print_exc()
+            computer_move()
+    else:
+        print("Game Over :()")
+    return hello()
 
 if __name__ == "__main__":
     app.run(debug=True)
