@@ -25,4 +25,4 @@ Pieces (2+7*2 = 16):
 Extra states:
 * To move
 
-8x8x5 = 320 bits (vector of 0 or 1)
+8x8x5 = 320 bits (vector of 0s or 1s)
