@@ -25,8 +25,9 @@ def explore_leaves(s, v):
 if __name__ == "__main__":
     v = Valuator()
     s = State()
-    l = explore_leaves(s, v)
-    print(l)
-    # while not s.board.is_game_over():
-    #     l = explore_leaves(s, v)
-    #     print(l)
+    while not s.board.is_game_over():
+        l = sorted(explore_leaves(s, v), key=lambda x: x[0], reverse=s.board.turn)
+        move = l[0]
+        print(move)
+        s.board.push(move[1])
+    print(s.board.result())
