@@ -1,28 +1,17 @@
 # An AI Chess Engine
 
-We can think of chess decisions as a big search tree.
-Then use a neural network to prune the search tree.
+Simple one-look-ahead neural network value function.
 
-Definition: value network.
-V = f(state)
--> -1: black wins board state
--> 0: draw board state
--> 1: white wins board state
+## Usage
 
-**state(board):**
-Pieces (2+7*2 = 16):
-* Universal
-** Blank
-** Blank (en passant)
-* Pieces
-** Pawn
-** Bishop
-** Knight
-** Rook
-** Rook (can castle)
-** Queen
-** King
-Extra states:
-* To move
+./play.py runs the webserver on localhost:5000
 
-8x8x5 = 320 bits (vector of 0s or 1s)
+## Implementation
+
+The board is serialized intro a 8x8x5 bitvector.
+
+Trained net can be found in ./nets/value_100k.pth. It takes in a serialized board and outputs a range from -1 (chances of black winning) to 1 (chances of white winning).
+
+## Training set
+
+The value function was trained on 100k chess moves (examples) from http://caissabase.co.uk/
