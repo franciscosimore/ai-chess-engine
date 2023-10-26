@@ -2,6 +2,8 @@
 
 Simple one-look-ahead neural network value function.
 
+![](https://i.imgur.com/8d6Ms4u.gif)
+
 ## Usage
 
 ./play.py runs the webserver on localhost:5000
